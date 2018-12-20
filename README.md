@@ -1,2 +1,2 @@
-# gladiatus-scripts
-Script-y na Gladiatus
+# Secret work of Mato & Mato
+Tampermonkey/Greasemonkey browser scripts
