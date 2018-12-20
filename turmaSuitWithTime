@@ -1,0 +1,391 @@
+// ==UserScript==
+// @name        Circus Turma suit
+// @description gladiatus auto dungeon and expedition clicker
+// @include     *://*s*.gladiatus.gameforge.*/game/index.php?mod=reports&submod=showCombatReport&t=3*
+// @include     *://*s*.gladiatus.gameforge.*/game/index.php?mod=arena&submod=serverArena&aType=3*
+// @author      ZaharX97
+// @version  	1.13
+// @namespace   https://greasyfork.org/users/104906
+// @grant GM_getValue
+// @grant GM_setValue
+// @grant GM_addStyle
+// ==/UserScript==
+(function() { "use strict"; } )();
+GM_addStyle("\
+.GADbutton1{\
+background-image: url(https://i.imgur.com/Wcct3Hz.jpg);\
+background-repeat: no-repeat;\
+background-size: 144px 19px;\
+background-position: center;\
+text-align: center;\
+color: #c8b38a;\
+font-weight: bold;\
+width: 144px;\
+margin-left: auto;\
+margin-right: auto;\
+cursor: pointer;\
+outline-style: none;\
+outline-color: #ffff00;\
+outline-width: 1px;\
+}\
+");
+var statusLocal = GM_getValue("status", true);
+var refreshInc = setTimeout(function(){ window.location.reload(true); }, 10000);
+window.addEventListener("load", calculateRuntime);
+//addAutoExpeditionButton();
+
+function main () {
+    var elemLink, explink, eXptime, x, elemFights,hodiny,faill,zivoty,aktzivoty;
+    var zivotperh,cakatzivoty , dungeonLink , time, sekundy, minuty, arenaTime, turmaTime;
+    var arenaProvincLink, jobLink, turmaProvincLink, attackButton;
+    elemLink = document.getElementsByClassName("cooldown_bar_link");
+    dungeonLink = elemLink[1].href;
+    //console.log(elemLink[6].href);
+    arenaProvincLink = elemLink[2].href;
+    turmaProvincLink = elemLink[3].href;
+    //time = getRemainingTime();
+    //arenaTime = getRemainingArenaTime();
+    turmaTime = getRemainingTurmaTime();
+    //jobLink = document.getElementsByClassName("advanced_menu_entry");
+    elemLink = document.getElementsByClassName("cooldown_bar");
+    elemLink = elemLink[0].getElementsByTagName("a");
+    explink = elemLink[0].href;
+    //eXptime = getRemainingExpTime();
+
+    zivoty = document.getElementById("header_values_hp_bar");
+    aktzivoty = zivoty.getAttribute('data-value');
+    zivotperh = zivoty.getAttribute('data-regen-per-hour');
+    cakatzivoty = (3001 - aktzivoty) / (zivotperh/3600);
+
+    if(aktzivoty < 3001) {
+        minuty = Math.abs(cakatzivoty/60);
+        sekundy = Math.abs(minuty - Math.floor(minuty))*60;
+        if (minuty > 59) {
+            var noveMinuty, noveHodiny, noveSekundy;
+            noveHodiny = Math.abs(minuty/60);
+            noveMinuty = Math.abs((noveHodiny - Math.floor(noveHodiny))*60);
+            noveSekundy = Math.abs((noveMinuty - Math.floor(noveMinuty))*60);
+            console.log("Due to low hp, I need to wait " + noveHodiny.toFixed(0) + " hours, "
+                        + noveMinuty.toFixed(0) + " minutes and " + noveSekundy.toFixed(0) +
+                        " seconds to go on an adventure again.");
+        } else {
+        console.log("Due to low hp, I need to wait " + minuty.toFixed(0) + " minutes and " +
+                    sekundy.toFixed(0) + " seconds to go on an adventure again.");
+        }
+    } else {
+        console.log("I don't need to wait for more HP to go on an adventure.");
+    }
+/*
+    if((isNaN(eXptime)) && ((cakatzivoty < time) || (cakatzivoty < 0)) &&
+       ((dungeonLink !== window.location.href) || (!isNaN(time)))) {
+       if(window.location.href != explink) {
+           x = getRndInteger( 400, 2899 );
+           setTimeout(function(){ console.log("[GAD]: going to expedition"); window.location.assign(explink); }, 2510 + x);
+           return;
+       }
+       elemFights = document.getElementsByClassName("expedition_button");
+       x = getRndInteger( 0, 3281 );
+       hodiny= document.getElementsByClassName("expedition_cooldown_reduce");
+
+        if((hodiny !== null) && (aktzivoty > 3000)) {
+           setTimeout( function(){ elemFights[3].click(); }, x);
+           return;
+       } else if (aktzivoty < 3000) {
+       setTimeout(function(){ window.location.reload(true); }, Math.abs(cakatzivoty*1000));
+       return;
+       }
+
+    }
+    if (((cakatzivoty < arenaTime) || (cakatzivoty < 0)) && (isNaN(arenaTime))) {
+        if (window.location.href != arenaProvincLink) {
+            x = getRndInteger( 0, 2899 );
+            setTimeout(function(){ console.log("[GAD]: going to arena"); window.location.assign(arenaProvincLink); }, 300 + x);
+            return;
+        }
+        if (window.location.href == arenaProvincLink) {
+            setTimeout( function() {
+                x = getRndInteger( 700, 1300 );
+                var minLevel, server, riadky, newServer, newLevel, tyRiadok;
+                var prvyLevel, druhyLevel, tretiLevel, stvrtyLevel, piatyLevel;
+                var prvyS, druhyS, tretiS, stvrtyS, piatyS;
+                tyRiadok = 2;
+                server = document.getElementById("own2").getElementsByTagName("td")[2].innerHTML;
+                server = parseInt(server.trim());
+                riadky = document.getElementById("own2").getElementsByTagName("td");
+                // if (minLevel > 104){
+                //    attackButton = document.getElementsByClassName("button1");
+                //     console.log(attackButton[0]);
+                //    setTimeout( function(){
+                //        attackButton[2].click();}, x);
+                //} else {
+                for(var i = 4; i < riadky.length; i++) {
+                    if (i == 6 || i == 10 || i == 14 || i == 18) {
+                        newServer = document.getElementById("own2").getElementsByTagName("td")[i].innerHTML;
+                        newServer = parseInt(newServer.trim());
+                        newLevel = document.getElementById("own2").getElementsByTagName("td")[i - 1].innerHTML;
+                        newLevel = parseInt(newLevel.trim());
+                        if (newServer > server && newLevel < 105) {
+                            tyRiadok = i;
+                            server = newServer;
+                        }
+                    }
+                }
+                //var menoSeknuteho = document.getElementById("own2").getElementsByTagName("td")[tyRiadok - 2].innerHTML;
+                //console.log("Idem seknut " + menoSeknuteho + "  zo serveru " + server);
+                if (tyRiadok == 18) {
+                    tyRiadok = 4;
+                } else if (tyRiadok == 14) {
+                    tyRiadok = 3;
+                } else if (tyRiadok == 10) {
+                    tyRiadok = 2;
+                } else if (tyRiadok == 6) {
+                    tyRiadok = 1;
+                } else if (tyRiadok == 2) {
+                    tyRiadok = 0;
+                }
+                attackButton = document.getElementsByClassName("attack");
+                setTimeout( function(){
+                attackButton[tyRiadok].click();}, x);
+                //}
+            } , 1000);
+        }
+    }*/
+    //if (isNaN(turmaTime) && !isNaN(arenaTime)) {
+    //if (isNaN(turmaTime)) {
+        if (window.location.href != turmaProvincLink) {
+            x = getRndInteger( 200, 400 );
+            setTimeout(function(){ console.log("[GAD]: going to turma"); window.location.assign(turmaProvincLink); }, 200 + x);
+            return;
+        }
+    if (window.location.href == turmaProvincLink && turmaTime > 0){
+        setTimeout(function(){
+            console.log("Ide reload");
+            window.location.reload(true); }, turmaTime - 500);
+    }
+        if (window.location.href == turmaProvincLink && isNaN(turmaTime)) {
+            setTimeout( function() {
+                 //window.location.reload(true);
+                x = getRndInteger( 600, 900 );
+                var minLevelCt, serverCt, riadkyCt, newServerCt, newLevelCt, tyRiadokCt;
+                var name, levelCt;
+                tyRiadokCt = 0;
+                riadkyCt = document.getElementById("own3").getElementsByTagName("td");
+                name = document.getElementById("own3").getElementsByTagName("td")[0].getElementsByTagName("a")[0].innerHTML.trim();
+                //serverCt = document.getElementById("own3").getElementsByTagName("td")[2].innerHTML;
+                //serverCt = parseInt(serverCt.trim());
+                serverCt = 0;
+                levelCt = 107;
+                // if (minLevelCt > 101){
+                //    attackButton = document.getElementsByClassName("button1");
+                //     console.log(attackButton[0]);
+                //    setTimeout( function(){
+                //        attackButton[2].click();}, x);
+                //} else {
+               for(var iCt = 4; iCt < riadkyCt.length; iCt++) {
+                    if (iCt == 6 || iCt == 10 || iCt == 14 || iCt == 18) {
+                        name = document.getElementById("own3").getElementsByTagName("td")[iCt - 2].getElementsByTagName("a")[0].innerHTML.trim();
+                        newServerCt = document.getElementById("own3").getElementsByTagName("td")[iCt].innerHTML;
+                        newServerCt = parseInt(newServerCt.trim());
+                        newLevelCt = document.getElementById("own3").getElementsByTagName("td")[iCt - 1].innerHTML;
+                        newLevelCt = parseInt(newLevelCt.trim());
+                        if (name.includes("_Dodkes_")) {
+                            tyRiadokCt = iCt;
+                            break;
+                        } else if (!(name.includes("666") || name.includes("Balaam") || name.includes("Podmak") || name.includes("GRIFON")
+                                    || name.includes("Roya") || name.includes("DominoPecuniam") || name.includes("Luci") || name.includes("Mano") ||
+                                     name.includes("Parazit") || name.includes("Meltixxx") || name.includes("Prohibic") || name.includes("jjakubb") ||
+                                     name.includes("Toxic") || name.includes("Meridiamus") || name.includes("salem1309"))) {
+                            tyRiadokCt = iCt;
+                            break;
+                        }
+                    }
+                }
+                if (tyRiadokCt == 18) {
+                    tyRiadokCt = 4;
+                } else if (tyRiadokCt == 14) {
+                    tyRiadokCt = 3;
+                } else if (tyRiadokCt == 10) {
+                    tyRiadokCt = 2;
+                } else if (tyRiadokCt == 6) {
+                    tyRiadokCt = 1;
+                } else {
+                    tyRiadokCt = 0;
+                }
+                attackButton = document.getElementsByClassName("attack");
+                setTimeout( function(){
+                    attackButton[tyRiadokCt].click();}, x + 100);
+            }, 700);
+        }
+
+/*
+    if(isNaN(time)) {
+        if(window.location.href != dungeonLink) {
+            x = getRndInteger( 800, 1200 );
+            setTimeout(function(){ console.log("[GAD]: going to dungeon"); window.location.assign(dungeonLink); }, 1000 + x);
+            return;
+        }
+        elemFights = document.getElementsByTagName("area");
+        x = getRndInteger( 0, 3281 );
+        if(elemFights.length > 0){
+            setTimeout( function(){ elemFights[0].click(); }, x);
+            return;
+        } else {
+            elemFights = document.getElementsByClassName("button1");
+            console.log(elemFights[1]);
+            if (elemFights[1].disabled) {
+                setTimeout( function(){ elemFights[2].click(); }, x);
+            } else {
+                setTimeout( function(){ elemFights[3].click(); }, x);
+            }
+
+        }
+    }
+
+    if (time < eXptime && time < arenaTime && time < turmaTime) {
+        setTimeout( function(){ console.log( "[GAD]: " + time + " passed, going on an dungeon" ); window.location.assign(dungeonLink); }, time + 2000 );
+        return;
+    }
+    if (eXptime < time && eXptime < arenaTime && eXptime < turmaTime) {
+        setTimeout( function(){ console.log( "[GAD]: " + eXptime + " passed, going on an adventure" ); window.location.assign(explink); }, eXptime + 2000 );
+        return;
+    }
+    if (arenaTime < time && arenaTime < eXptime && arenaTime < turmaTime) {
+        setTimeout( function(){ console.log( "[GAD]: " + arenaTime + " passed, going to arena" ); window.location.assign(arenaProvincLink); }, arenaTime + 1000 );
+        return;
+    }
+    if (turmaTime < time && turmaTime < eXptime && turmaTime < arenaTime) {
+        setTimeout( function(){ console.log( "[GAD]: " + turmaTime + " passed, going to CT" ); window.location.assign(turmaProvincLink); }, turmaTime + 1000 );
+        return;
+    }
+*/
+    //if (turmaTime > 0) {
+    //    setTimeout( function(){ console.log( "[GAD]: " + turmaTime + " passed, going to CT" ); window.location.assign(turmaProvincLink); }, turmaTime - turmaTime/2 );
+     //   return;
+    //}
+
+}
+
+function getRemainingArenaTime() {
+    var elemTime, timeText, x, time;
+    elemTime = document.getElementById("cooldown_bar_text_arena");
+    timeText = elemTime.innerText;
+    x = getRndInteger( 1, 4 );
+    time = timeText[0]*3600 + timeText[2]*10*60 + timeText[3]*60 + timeText[5]*10 + timeText[6]*1 + x*1;
+    if(time >= 60) {
+        console.log( "I am going to enter Arena in " + (Math.abs(time/60)).toFixed(0) +
+                    " minutes and " + (Math.abs(time/60 - Math.floor(time/60))*60).toFixed(0) + " seconds.");
+    } else if (!time) {
+        console.log( "I am ready to go to Arena." );
+    } else {
+        console.log( "I am going to Arena in " + time + " seconds." );
+    }
+    time = time*1000;
+    return time;
+}
+
+
+function getRemainingTurmaTime() {
+    var elemTime, timeText, x, time;
+    elemTime = document.getElementById("cooldown_bar_text_ct");
+    timeText = elemTime.innerText;
+    x = getRndInteger( 1, 4 );
+    time = timeText[0]*3600 + timeText[2]*10*60 + timeText[3]*60 + timeText[5]*10 + timeText[6]*1 + x*1;
+    if(time >= 60) {
+        console.log( "I am going to Circus Turma in " + (Math.abs(time/60)).toFixed(0) +
+                    " minutes and " + (Math.abs(time/60 - Math.floor(time/60))*60).toFixed(0) + " seconds.");
+    } else if (!time) {
+        console.log( "I am ready to go to Circus Turma." );
+    } else {
+        console.log( "I am going to Circus Turma in " + time + " seconds." );
+    }
+    time = time*1000;
+    return time;
+}
+
+function getRemainingExpTime() {
+    var elemTime, timeText, x, time;
+    elemTime = document.getElementById("cooldown_bar_text_expedition");
+    timeText = elemTime.innerText;
+    x = getRndInteger( 1, 4 );
+    time = timeText[0]*3600 + timeText[2]*10*60 + timeText[3]*60 + timeText[5]*10 + timeText[6]*1 + x*1;
+    if(time >= 60) {
+        console.log( "I am going to go on an adventure in " + (Math.abs(time/60)).toFixed(0) +
+                    " minutes and " + (Math.abs(time/60 - Math.floor(time/60))*60).toFixed(0) + " seconds.");
+    } else if (!time) {
+        console.log( "I am ready to go on an adventure." );
+    } else {
+        console.log( "I am going to go on an adventure in " + time + " seconds." );
+    }
+    time = time*1000;
+    return time;
+}
+
+function getRemainingTime() {
+    var elemTime, timeText, x, time;
+    elemTime = document.getElementById("cooldown_bar_text_dungeon");
+    timeText = elemTime.innerText;
+    x = getRndInteger( 1, 4 );
+    time = timeText[0]*3600 + timeText[2]*10*60 + timeText[3]*60 + timeText[5]*10 + timeText[6]*1 + x*1;
+    if(time >= 60) {
+        console.log( "I am going to enter a dungeon in " + (Math.abs(time/60)).toFixed(0) +
+                    " minutes and " + (Math.abs(time/60 - Math.floor(time/60))*60).toFixed(0) + " seconds.");
+    } else if (!time) {
+        console.log( "I am ready to go to a dungeon." );
+    } else {
+        console.log( "I am going to enter a dungeon in " + time + " seconds." );
+    }
+    time = time*1000;
+    return time;
+}
+
+function getRndInteger(min, max) {
+    return Math.floor(Math.random() * (max - min + 1) ) + min;
+}
+
+function calculateRuntime(){
+    var sRuntime = Date.now();
+    var eRuntime;
+    clearTimeout(refreshInc);
+    if(statusLocal){
+        main();
+    }
+    eRuntime = Date.now() - sRuntime;
+    console.log("[GAD] runtime: " + eRuntime + "ms" );
+}
+
+
+
+function addAutoExpeditionButton(){
+    var elemTarget = document.getElementById("expedition_list");
+	if(!elemTarget) {elemTarget = document.getElementsByClassName("contentItem"); elemTarget = elemTarget[0];}
+    if(!elemTarget)
+    {elemTarget = document.getElementById("reportHeader");}
+    var elemMyButton = document.createElement("div");
+    elemMyButton.setAttribute("id", "GADbuttonPlace");
+    elemMyButton.style.marginTop = "7px";
+    var elemNewChild = document.createElement("div");
+    elemNewChild.setAttribute("id", "GADactualButton1");
+    elemNewChild.setAttribute("class", "GADbutton1");
+    if(statusLocal){
+        elemNewChild.style.backgroundImage = "url(https://i.imgur.com/iXZKKOQ.jpg)";
+        elemNewChild.innerText = "AUTO Z&V zapnute";
+    }
+    else{
+        elemNewChild.style.backgroundImage = "url(https://i.imgur.com/jr28Qwn.jpg)";
+        elemNewChild.innerText = "AUTO Z&V vypnute";
+    }
+    elemNewChild.addEventListener("mouseover", function() {
+        document.getElementById("GADactualButton1").style.outlineStyle = "solid";
+    });
+    elemNewChild.addEventListener("mouseout", function() {
+        document.getElementById("GADactualButton1").style.outlineStyle = "none";
+    });
+    elemNewChild.addEventListener("click", function() {
+        GM_setValue("status", !statusLocal);
+        window.location.reload();
+    });
+    elemMyButton.appendChild(elemNewChild);
+    elemNewChild = document.createElement("br");
+    elemMyButton.appendChild(elemNewChild);
+    elemTarget.parentElement.insertBefore(elemMyButton, elemTarget);
+}
