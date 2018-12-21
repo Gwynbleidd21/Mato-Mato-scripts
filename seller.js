@@ -43,7 +43,7 @@ function start () {
   }else if(mode == 'sell'){
     console.log('first sell drag');
     document.getElementsByClassName('awesome-tabs')[3].click();
-  	elemDrag = document.getElementById('inv')[1];
+  	elemDrag = document.getElementById('inv').childNodes[1];
     elemDrop = document.getElementById('shop');
     console.log('end first sell drag');
   }
@@ -64,8 +64,8 @@ function main () {
         elemDrop = document.getElementById('inv').childNodes[1];
       }else if(mode == 'sell'){
         console.log('another sell drag');
-  			elemDrag = document.getElementById('inv')[1];
-        elemDrop = document.getElementById('shop').childNodes[0]; 
+  			elemDrag = document.getElementById('inv').lastChild;
+        elemDrop = document.getElementById('shop').getElementsByClassName('grid-droparea')[0]; 
       }
       dragAndDrop(elemDrag,elemDrop);
       
