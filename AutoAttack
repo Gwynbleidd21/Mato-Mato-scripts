@@ -1,0 +1,62 @@
+// ==UserScript==
+// @name        Divoke kmene autoatack
+// @description Divoke kmene autoatack
+// @include     https://*.divoke-kmene.sk/game.php?village=*&screen=place&try=confirm
+// @author      Bristix
+// @version  	1.0
+// @namespace   https://greasyfork.org/users/104906
+// ==/UserScript==
+
+
+//bot_check if exitst
+
+console.log('scrtipt');
+var button = document.createElement('input');
+button.value = 'Auto Attack';
+button.type = 'button';
+button.addEventListener("click", start2);
+document.getElementById('troop_confirm_go').parentElement.appendChild(button);
+var inputString = document.createElement('input');
+inputString.type = 'text';
+inputString.id = 'myText';
+document.getElementById('troop_confirm_go').parentElement.appendChild(inputString);
+
+function start2(){
+    var inputTime = document.getElementById('myText').value.split(':');
+
+    var arriveTime = document.getElementsByClassName('relative_time')[0].innerText.split(' ')[1].split(':');
+    //console.log(arriveTime);
+    var result = 0;
+    result += 3600000*(inputTime[0] - arriveTime[0]);
+    result += 60000*(inputTime[1] - arriveTime[1]);
+    result += (1000*(inputTime[2] - arriveTime[2])) - 1000;
+
+
+    //console.log(result);
+    setTimeout(function(){ start()}, result)
+}
+
+
+
+function start(){
+    var inputTime = document.getElementById('myText').value;
+    inputTime = inputTime.split(':');
+    var arriveTime = document.getElementsByClassName('relative_time')[0].innerText;
+    arriveTime = arriveTime.split(' ')[1];
+    arriveTime = arriveTime.split(':');
+    var result = 0;
+    for(var i=0; i<3; i++){
+        if(inputTime[i] == arriveTime[i]){
+            result ++;
+        }
+    }
+    console.log(result);
+    if (result == 3) {
+        setTimeout(function(){ send()}, inputTime[3]-15);
+    }
+    else setTimeout(function(){ start()}, 5);
+}
+
+function send(){
+    document.getElementById('troop_confirm_go').click();
+}
