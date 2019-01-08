@@ -1,10 +1,10 @@
 // ==UserScript==
-// @name        Klikanie inventar
-// @description moving items
+// @name        Predavac
+// @description script to sell and withdraw items
 // @include     *://*s17-sk.gladiatus.gameforge.*/game/index.php?mod=inventory&sub=*&subsub=*&*
 // @include     *://*s17-sk.gladiatus.gameforge.*/game/index.php?mod=packages*
 // @author      Gucci
-// @version  	1.13
+// @version  	2
 // @namespace   https://greasyfork.org/users/104906
 // @grant GM_getValue
 // @grant GM_setValue
@@ -18,13 +18,12 @@ var button = document.createElement("BUTTON");
 
 link = link.split("=");
 if (link[1] == "inventory&sub") {
-    mode = 'sell';
+    mode = 'Predavaj!';
 }
-else mode = 'take';
-console.log(mode);
+else mode = 'Vytahuj!';
+// console.log(mode);
 
-
-button.innerHTML = 'Start/stop selling';
+button.innerHTML = mode;
 button.addEventListener("click", prepinanie);
 document.getElementById("content").insertBefore(button, document.getElementById("content").firstChild);
 
@@ -36,29 +35,36 @@ function prepinanie() {
     if (tlacidlo) {
         tlacidlo = false;
     } else tlacidlo = true;
-    console.log(tlacidlo);
+    // console.log(tlacidlo);
 
     if (tlacidlo) {
-        if (mode == 'sell') {
-            tahaj();
+        if (mode == 'Predavaj') {
+            predavaj();
         } else {
             vytahuj();
         }
     }
 }
 
-function tahaj() {
+function predavaj() {
     if (tlacidlo) {
-        var cas, inventar, item;
+        var cas, inventar, item, polozka;
         inventar = document.getElementById("inv");
         item = inventar.getElementsByClassName("ui-draggable");
-        cas = getRndInteger( 500, 700 );
+        cas = getRndInteger( 600, 1000 );
         var evt = new Event('dblclick');
-        if (item.length > 0) {
-            setTimeout(function(){
-                item.item(0).dispatchEvent(evt);
-                tahaj();}, cas);
-        }
+        setTimeout(function(){
+            if (item.length > 0 && (document.getElementById("inv").getElementsByClassName("ui-draggable").item(0) !== poslednyItem)) {
+                poslednyItem = document.getElementById("inv").getElementsByClassName("ui-draggable").item(0);
+                document.getElementById("inv").getElementsByClassName("ui-draggable").item(0).dispatchEvent(evt);
+                predavaj();
+            } else if (item.length > 0) {
+                setTimeout(prepniObchodnika(), cas);
+                } else {
+                    tlacidlo = false;
+                    setTimeout(prepniNaVykladnia(), cas);
+                }
+        }, cas);
     }
 }
 
@@ -66,32 +72,58 @@ function vytahuj() {
     if (tlacidlo) {
         var item = document.getElementsByClassName('packageItem')[0];
         var evt = new Event('dblclick');
-        var cas = getRndInteger( 900, 1200 );
+        var cas = getRndInteger( 1000, 1300 );
         if (item) {
-            if (poslednyItem !== document.getElementsByClassName('packageItem')[0].childNodes[5].childNodes[0]) {
-                console.log("tu");
-                setTimeout(function() {
-                    console.log(poslednyItem);
+            setTimeout(function() {
+                if (poslednyItem !== document.getElementsByClassName('packageItem')[0].childNodes[5].childNodes[0]) {
                     poslednyItem = document.getElementsByClassName('packageItem')[0].childNodes[5].childNodes[0];
-                    console.log(poslednyItem);
                     document.getElementsByClassName('packageItem')[0].childNodes[5].childNodes[0].dispatchEvent(evt);
-                    vytahuj()}, cas);
-            } else {
-                console.log("plny inventar");
-                setTimeout(prepniNaPredavanie(), cas);
-            }
+                    vytahuj()
+
+                } else {
+                    // console.log("plny inventar");
+                    tlacidlo = false;
+                    setTimeout(prepniNaPredavanie(), cas);
+                }
+            }, cas);
         } else {
-            console.log("nic v balikoch");
+            // console.log("nic v balikoch");
+            tlacidlo = false;
             setTimeout(prepniNaPredavanie(), cas);
         }
     }
 }
+
 function prepniNaPredavanie() {
     var predavacX;
     var cas = getRndInteger( 900, 1200 );
-    predavacX = document.getElementById("submenu1").getElementsByClassName("menuitem ")[3];
+    predavacX = document.getElementById("submenu1").getElementsByClassName("menuitem")[3];
     setTimeout(function() {
         predavacX.click();
     }, cas);
-    console.log(predavacX);
+}
+
+function prepniObchodnika() {
+    var actualObchodnik = window.location.href;
+    var cas = getRndInteger( 900, 1200 );
+    var celymMenom, poradie, predavacX;
+    actualObchodnik = actualObchodnik.split("&");
+    celymMenom = actualObchodnik[1];
+    poradie = celymMenom.split("=");
+    poradie = parseInt(poradie[1]);
+    if (poradie > 0 && poradie < 6) {
+        predavacX = document.getElementById("submenu1").getElementsByClassName("menuitem")[3 + poradie];
+        setTimeout(function() {
+            predavacX.click();
+        }, cas);
+    }
+}
+
+function prepniNaVykladnia() {
+    var baliky;
+    var cas = getRndInteger( 900, 1200 );
+    baliky = document.getElementById("menue_packages");
+    setTimeout(function() {
+        baliky.click();
+    }, cas);
 }
