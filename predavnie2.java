@@ -4,7 +4,7 @@
 // @include     *://*s17-sk.gladiatus.gameforge.*/game/index.php?mod=inventory&sub=*&subsub=*&*
 // @include     *://*s17-sk.gladiatus.gameforge.*/game/index.php?mod=packages*
 // @author      Gucci
-// @version  	2
+// @version  	2.1
 // @namespace   https://greasyfork.org/users/104906
 // @grant GM_getValue
 // @grant GM_setValue
@@ -38,7 +38,7 @@ function prepinanie() {
     // console.log(tlacidlo);
 
     if (tlacidlo) {
-        if (mode == 'Predavaj') {
+        if (mode == 'Predavaj!') {
             predavaj();
         } else {
             vytahuj();
@@ -53,18 +53,7 @@ function predavaj() {
         item = inventar.getElementsByClassName("ui-draggable");
         cas = getRndInteger( 600, 1000 );
         var evt = new Event('dblclick');
-        setTimeout(function(){
-            if (item.length > 0 && (document.getElementById("inv").getElementsByClassName("ui-draggable").item(0) !== poslednyItem)) {
-                poslednyItem = document.getElementById("inv").getElementsByClassName("ui-draggable").item(0);
-                document.getElementById("inv").getElementsByClassName("ui-draggable").item(0).dispatchEvent(evt);
-                predavaj();
-            } else if (item.length > 0) {
-                setTimeout(prepniObchodnika(), cas);
-                } else {
-                    tlacidlo = false;
-                    setTimeout(prepniNaVykladnia(), cas);
-                }
-        }, cas);
+        setTimeout(dragToSell, cas);
     }
 }
 
@@ -74,20 +63,9 @@ function vytahuj() {
         var evt = new Event('dblclick');
         var cas = getRndInteger( 1000, 1300 );
         if (item) {
-            setTimeout(function() {
-                if (poslednyItem !== document.getElementsByClassName('packageItem')[0].childNodes[5].childNodes[0]) {
-                    poslednyItem = document.getElementsByClassName('packageItem')[0].childNodes[5].childNodes[0];
-                    document.getElementsByClassName('packageItem')[0].childNodes[5].childNodes[0].dispatchEvent(evt);
-                    vytahuj()
-
-                } else {
-                    // console.log("plny inventar");
-                    tlacidlo = false;
-                    setTimeout(prepniNaPredavanie(), cas);
-                }
-            }, cas);
+            setTimeout(dragToPick, cas);
         } else {
-            // console.log("nic v balikoch");
+            console.log("nic v balikoch");
             tlacidlo = false;
             setTimeout(prepniNaPredavanie(), cas);
         }
@@ -126,4 +104,101 @@ function prepniNaVykladnia() {
     setTimeout(function() {
         baliky.click();
     }, cas);
+}
+
+function najdiVypln() {
+    var inventar, item;
+    var cas = getRndInteger( 600, 1000 );
+    inventar = document.getElementById("inv");
+    var nasiel = false;
+    item = inventar.getElementsByClassName("ui-draggable");
+    for (var i = 0; i < item.length; i++) {
+        if (item.item(i).clientHeight == 32) {
+            //setTimeout(dragToSell(i), cas);
+            return i;
+        }
+    }
+    return 0;
+}
+
+function najdiNaDolozenie() {
+    var balik = document.getElementsByClassName('packageItem');
+    var pocet = 0;
+    for (var i = 0; i < balik.length; i++) {
+        if (balik[i].childNodes[5].childNodes[0].clientHeight == 32) {
+            return i;
+        }
+    }
+    return 0;
+}
+
+function dragToPick(zaciatok = 0) {
+    var evt = new Event('dblclick');
+    var balik = document.getElementsByClassName('packageItem');
+    var cas = getRndInteger(1000, 1300);
+    if (balik.length > 0 && poslednyItem !== document.getElementsByClassName('packageItem')[zaciatok].childNodes[5].childNodes[0]) {
+        console.log("Zase prace...");
+        poslednyItem = document.getElementsByClassName('packageItem')[zaciatok].childNodes[5].childNodes[0];
+        document.getElementsByClassName('packageItem')[zaciatok].childNodes[5].childNodes[0].dispatchEvent(evt);
+        vytahuj()
+    } else if (balik.length > 0) {
+        console.log("Pozrem ci sa este nieco nemesti...");
+        var poziciaVyplne = najdiNaDolozenie();
+        if (poziciaVyplne > 0) {
+            setTimeout(function() {
+                if (balik.length > 0 && poslednyItem !== document.getElementsByClassName('packageItem')[poziciaVyplne].childNodes[5].childNodes[0]) {
+                    poslednyItem = document.getElementsByClassName('packageItem')[poziciaVyplne].childNodes[5].childNodes[0];
+                    document.getElementsByClassName('packageItem')[poziciaVyplne].childNodes[5].childNodes[0].dispatchEvent(evt);
+                    dragToPick(poziciaVyplne);
+                }
+                else {
+                    console.log("Plny inventar, idem k obchodnikovi.");
+                    setTimeout(prepniNaPredavanie(), cas);
+                }
+            }, cas);
+        } else {
+            console.log("Plny inventar, idem k obchodnikovi.");
+            setTimeout(prepniNaPredavanie(), cas);
+        }
+    } else {
+        console.log("Plny inventar, idem k obchodnikovi.");
+        setTimeout(prepniNaPredavanie(), cas);
+    }
+}
+
+function dragToSell(zaciatok = 0) {
+    var inventar, item, cas;
+    inventar = document.getElementById("inv");
+    item = inventar.getElementsByClassName("ui-draggable");
+    cas = getRndInteger( 600, 1000 );
+    var evt = new Event('dblclick');
+    if (item.length > 0 && (document.getElementById("inv").getElementsByClassName("ui-draggable").item(zaciatok) !== poslednyItem)) {
+        console.log("Zase prace...");
+        poslednyItem = document.getElementById("inv").getElementsByClassName("ui-draggable").item(zaciatok);
+        document.getElementById("inv").getElementsByClassName("ui-draggable").item(zaciatok).dispatchEvent(evt);
+        predavaj();
+    } else if (item.length > 0) {
+        console.log("Pozrem ci sa este nieco nemesti...");
+        var poziciaVyplne = najdiVypln();
+        //setTimeout(najdiVypln(), cas);
+        if (poziciaVyplne > 0) {
+            setTimeout(function() {
+                if (document.getElementById("inv").getElementsByClassName("ui-draggable").item(poziciaVyplne) !== poslednyItem) {
+                    poslednyItem = document.getElementById("inv").getElementsByClassName("ui-draggable").item(poziciaVyplne);
+                    document.getElementById("inv").getElementsByClassName("ui-draggable").item(poziciaVyplne).dispatchEvent(evt);
+                    dragToSell(poziciaVyplne);
+                }
+                else {
+                    console.log("Tento obchodnik plny, idem na nasledujuceho.");
+                    setTimeout(prepniObchodnika(), cas);
+                }
+            }, cas);
+        } else {
+            console.log("Tento obchodnik plny, idem na nasledujuceho.");
+            setTimeout(prepniObchodnika(), cas);
+        }
+    } else {
+        console.log("Inventar je prazdny, ide do balikov.");
+        setTimeout(prepniNaVykladnia(), cas);
+    }
 }
