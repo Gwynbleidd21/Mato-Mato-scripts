@@ -10,28 +10,57 @@
 // @grant GM_setValue
 // @grant GM_addStyle
 // ==/UserScript==
+GM_addStyle("\
+.GADbutton1{\
+background-image: url(https://i.imgur.com/iXZKKOQ.jpg);\
+background-repeat: no-repeat;\
+background-size: 144px 19px;\
+background-position: center;\
+text-align: center;\
+color: #c8b38a;\
+font-weight: bold;\
+width: 144px;\
+margin-left: 20px;\
+margin-right: 20px;\
+cursor: pointer;\
+outline-style: none;\
+outline-color: #ffff00;\
+outline-width: 1px;\
+}\
+.buttony{\
+ text-align:center;\
+padding-bottom:20px\
+}\
+")
 var tlacidlo = false;
 var mode;
 var poslednyItem = null;
 var link = window.location.href;
 var button = document.createElement("BUTTON");
 var button2 = document.createElement("BUTTON");
+var divko = document.createElement("div");
 
 link = link.split("=");
 if (link[1] == "inventory&sub") {
-    mode = 'Predavaj!';
+    mode = 'Predavanie';
 }
-else mode = 'Vytahuj!';
+else mode = 'Vyberanie';
 console.log(mode);
 
 button.innerHTML = mode;
 button.addEventListener("click", prepinanie);
-document.getElementById("content").insertBefore(button, document.getElementById("content").firstChild);
+button.setAttribute("class", "GADbutton1");
 
 button2.innerHTML = "Off-line";
 button2.addEventListener("click", prepinanieAutonomne);
-document.getElementById("content").insertBefore(button2, document.getElementById("content").firstChild);
+button2.setAttribute("class", "GADbutton1");
 
+divko.innerHTML += '<h1>Sekcia Pre Automaticke ' + mode + '</h1>';
+divko.appendChild(button);
+divko.appendChild(button2);
+divko.setAttribute("class", "buttony");
+
+document.getElementById("content").insertBefore(divko, document.getElementById("content").firstChild);
 if (localStorage.getItem("starter") == "null") {
     saveToStorage("false");
 }
