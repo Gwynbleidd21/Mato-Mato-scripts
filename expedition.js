@@ -30,7 +30,26 @@ outline-color: #ffff00;\
 outline-width: 1px;\
 }\
 ");
+function getRemainingExpTime(){
+    var elemTime, timeText, x, time;
+    elemTime = document.getElementById("cooldown_bar_text_expedition");
+    timeText = elemTime.innerText;
+    x = getRndInteger( 1, 4 );
+    time = timeText[0]*3600 + timeText[2]*10*60 + timeText[3]*60 + timeText[5]*10 + timeText[6]*1 + x*1;
+    if(time >= 60) {
+        console.log( "I am going to go on an adventure in " + (Math.abs(time/60)).toFixed(0) + " minutes and " + (Math.abs(time/60 - Math.floor(time/60))*60).toFixed(0) + " seconds.");
+    } else if (!time) {
+        console.log( "I am ready to go on an adventure." );
+    } else {
+        console.log( "I am going to go on an adventure in " + time/1000 + " seconds." );
+    }
+    time = time*1000;
+    return time;
+}
 
+function getRndInteger(min, max) {
+    return Math.floor(Math.random() * (max - min + 1) ) + min;
+}
 function main () {
     var i, elemLink, explink, eXptime, x, elemFights,hodiny,faill,zivoty,aktzivoty,zivotperh,cakatzivoty , dungeonLink , time, sekundy, minuty;
     var jobLink, arrow;
@@ -95,23 +114,4 @@ function main () {
     }
 }
 
-function getRemainingExpTime(){
-    var elemTime, timeText, x, time;
-    elemTime = document.getElementById("cooldown_bar_text_expedition");
-    timeText = elemTime.innerText;
-    x = getRndInteger( 1, 4 );
-    time = timeText[0]*3600 + timeText[2]*10*60 + timeText[3]*60 + timeText[5]*10 + timeText[6]*1 + x*1;
-    if(time >= 60) {
-        console.log( "I am going to go on an adventure in " + (Math.abs(time/60)).toFixed(0) + " minutes and " + (Math.abs(time/60 - Math.floor(time/60))*60).toFixed(0) + " seconds.");
-    } else if (!time) {
-        console.log( "I am ready to go on an adventure." );
-    } else {
-        console.log( "I am going to go on an adventure in " + time/1000 + " seconds." );
-    }
-    time = time*1000;
-    return time;
-}
-
-function getRndInteger(min, max) {
-    return Math.floor(Math.random() * (max - min + 1) ) + min;
-}
+main();
