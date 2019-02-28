@@ -64,6 +64,7 @@ function main () {
     aktzivoty = zivoty.getAttribute('data-value');
     zivotperh = zivoty.getAttribute('data-regen-per-hour');
     cakatzivoty = (1601 - aktzivoty) / (zivotperh / 3600);
+    arrow = document.getElementsByClassName("attack arrow right");
 
     if (aktzivoty < 1601) {
         minuty = Math.abs(cakatzivoty/60);
@@ -80,19 +81,12 @@ function main () {
     } else {
         console.log("I don't need to wait for more HP to go on an adventure.");
     }
-    arrow = document.getElementsByClassName("attack arrow right");
-    if (arrow[0] && (isNaN(eXptime) && (cakatzivoty < eXptime || cakatzivoty < 0))) {
+    if (arrow[0] && (cakatzivoty < eXptime || cakatzivoty < 0)) {
         x = getRndInteger( 200, 500 );
-        setTimeout( function(){ arrow[0].click(); }, x);
+        console.log("Idem kliknut o " + eXptime/1000 + " sekund.");
+        setTimeout( function(){ arrow[0].click(); }, eXptime);
         return;
-    } else if (eXptime > 0) {
-        setTimeout(function(){ window.location.reload(true); }, eXptime - 500);
     }
-    //if (window.location.href != explink) {
-    //    x = getRndInteger( 100, 300 );
-    //    setTimeout(function(){ console.log("[GAD]: going to expedition"); window.location.assign(explink); }, 150 + x);
-    //    return;
-    //}
 
     if (!isNaN(eXptime) && window.location.href == explink) {
         setTimeout(function(){ window.location.reload(true); }, eXptime - 500);
